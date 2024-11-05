@@ -1,6 +1,7 @@
 public class ShareTrader {
     static int maxProfit;
 
+    
 
     public static int findMaxProfit(int[] prices) {
         int n = prices.length;
