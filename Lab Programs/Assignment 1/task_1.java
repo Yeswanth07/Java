@@ -1,5 +1,6 @@
 import java.util.Scanner;
 
+
 public class CreditCardValidator {
     private String ccNumber;
     
