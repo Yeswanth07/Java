@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class FrequencyAnalyzer {
+    
     static int[] numbers = {7, 10, 11, 5, 2, 5, 5, 7, 11, 8, 9};
 
     public static void findTopKFrequentNumbers(int K) {
