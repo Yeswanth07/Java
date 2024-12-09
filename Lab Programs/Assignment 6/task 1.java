@@ -1,54 +1,63 @@
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-public class CoinChangeMultiThreaded {
+class CoinCombinationsTask implements Callable<Integer> {
+    private final int[] coins;
+    private final int sum;
+    private final int start;
+
+    public CoinCombinationsTask(int[] coins, int sum, int start) {
+        this.coins = coins;
+        this.sum = sum;
+        this.start = start;
+    }
+
+    @Override
+    public Integer call() {
+        return countWays(coins, sum, start);
+    }
+
+    private int countWays(int[] coins, int sum, int start) {
+        if (sum == 0) {
+            return 1;
+        }
+        if (sum < 0 || start >= coins.length) {
+            return 0;
+        }
+        return countWays(coins, sum - coins[start], start) + countWays(coins, sum, start + 1);
+    }
+}
+
+public class CoinCombinationsMultithreaded {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the number of coin denominations:");
+        int n = scanner.nextInt();
+        int[] coins = new int[n];
 
-
-        System.out.print("Enter the number of coins (N): ");
-        int N = scanner.nextInt();
-
-        System.out.print("Enter the target sum: ");
-        int targetSum = scanner.nextInt();
-
-        System.out.println("Enter the coin denominations: ");
-        int[] coins = new int[N];
-        for (int i = 0; i < N; i++) {
+        System.out.println("Enter the coin denominations:");
+        for (int i = 0; i < n; i++) {
             coins[i] = scanner.nextInt();
         }
 
-        scanner.close();
+        System.out.println("Enter the sum to be made:");
+        int sum = scanner.nextInt();
+        int numThreads = coins.length;
 
-
-        int result = countWaysMultithreaded(coins, targetSum);
-        System.out.println("Number of ways to make the sum: " + result);
-    }
-
-    public static int countWaysMultithreaded(int[] coins, int targetSum) throws InterruptedException, ExecutionException {
-
-        int[] dp = new int[targetSum + 1];
-        dp[0] = 1; 
-
-
-        int numThreads = Math.min(coins.length, Runtime.getRuntime().availableProcessors());
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        Future<Integer>[] results = new Future[numThreads];
 
-
-        for (int coin : coins) {
-            executor.submit(() -> {
-                
-                for (int j = coin; j <= targetSum; j++) {
-                    synchronized (dp) {
-                        dp[j] += dp[j - coin];
-                    }
-                }
-            });
+        for (int i = 0; i < numThreads; i++) {
+            results[i] = executor.submit(new CoinCombinationsTask(coins, sum, i));
         }
 
-        
-        executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
+        int totalWays = 0;
+        for (Future<Integer> result : results) {
+            totalWays += result.get();
+        }
 
-        return dp[targetSum];};
+        executor.shutdown();
+
+        System.out.println("Number of ways to make sum " + sum + ": " + totalWays);
+    }
 }
