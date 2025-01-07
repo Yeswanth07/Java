@@ -51,33 +51,60 @@ public class OrderManagementApp {
                 case 1:
                     System.out.print("Enter Customer ID: ");
                     String cid = sc.nextLine();
-                    System.out.print("Enter Customer Name: ");
-                    String cname = sc.nextLine();
-                    customers.add(new Customer(cid, cname));
+                    if (customers.stream().anyMatch(c -> c.id.equals(cid))) {
+                        System.out.println("Error: Customer ID already exists!");
+                    } else {
+                        System.out.print("Enter Customer Name: ");
+                        String cname = sc.nextLine();
+                        customers.add(new Customer(cid, cname));
+                        System.out.println("Customer added successfully!");
+
+                        System.out.println("Current Customers:");
+                        for (Customer customer : customers) {
+                            System.out.println(customer);
+                        }
+                    }
                     break;
-                case 2:
+
+                case 2: 
                     System.out.print("Enter Product ID: ");
                     String pid = sc.nextLine();
-                    System.out.print("Enter Product Name: ");
-                    String pname = sc.nextLine();
-                    System.out.print("Enter Product Price: ");
-                    double pprice = sc.nextDouble();
-                    sc.nextLine();
-                    Product p = new Product(pid, pname, pprice);
-                    products.put(pid, p);
-                    sortedProducts.add(p);
+                    if (products.containsKey(pid)) {
+                        System.out.println("Error: Product ID already exists!");
+                    } else {
+                        System.out.print("Enter Product Name: ");
+                        String pname = sc.nextLine();
+                        System.out.print("Enter Product Price: ");
+                        double pprice = sc.nextDouble();
+                        sc.nextLine();
+                        Product p = new Product(pid, pname, pprice);
+                        products.put(pid, p);
+                        sortedProducts.add(p);
+                        System.out.println("Product added successfully!");
+
+                        
+                        System.out.println("Current Products:");
+                        for (Product prod : products.values()) {
+                            System.out.println(prod);
+                        }
+                    }
                     break;
-                case 3:
+
+                case 3: 
                     System.out.print("Enter Customer ID: ");
                     String ocid = sc.nextLine();
                     System.out.print("Enter Product ID: ");
                     String opid = sc.nextLine();
-                    if (products.containsKey(opid)) {
-                        orders.add(new Order(ocid, opid));
+                    if (!products.containsKey(opid)) {
+                        System.out.println("Error: Product not found!");
+                    } else if (orders.stream().anyMatch(o -> o.customerId.equals(ocid) && o.productId.equals(opid))) {
+                        System.out.println("Error: Order with this Customer ID and Product ID already exists!");
                     } else {
-                        System.out.println("Product not found!");
+                        orders.add(new Order(ocid, opid));
+                        System.out.println("Order placed successfully!");
                     }
                     break;
+
                 case 4:
                     System.out.println("Order History:");
                     for (Order o : orders) {
@@ -100,4 +127,3 @@ public class OrderManagementApp {
         }
     }
 }
-
